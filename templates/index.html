@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScrapeFlow | High-Speed Web Scraper</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="container">
+        <header class="fade-in">
+            <div class="logo">
+                <span class="icon">⚡</span>
+                <h1>ScrapeFlow</h1>
+            </div>
+            <p class="subtitle">Advanced High-Performance Extraction Engine</p>
+        </header>
+
+        <main>
+            <section class="config-panel glass-card slide-up">
+                <form id="scrapeForm">
+                    <div class="input-group">
+                        <label for="url">Target URL</label>
+                        <div class="url-input-wrapper">
+                            <span class="input-icon">🔗</span>
+                            <input type="url" id="url" name="url" placeholder="https://example.com" required>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-bottom: 1.5rem;">
+                        <a href="/summarizer" style="display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; padding: 0.75rem 1.5rem; background: white; border: 1px solid #e2e8f0; border-radius: 8px; color: #475569; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                            <span>✨</span>
+                            <span>Try Smart Summarizer</span>
+                        </a>
+                    </div>
+
+                    <div class="settings-grid">
+                        <div class="input-group">
+                            <label for="max_pages">Max Pages</label>
+                            <input type="number" id="max_pages" name="max_pages" value="5" min="1" max="50">
+                        </div>
+                        <div class="input-group">
+                            <label for="links_per_page">Links / Page</label>
+                            <input type="number" id="links_per_page" name="links_per_page" value="5" min="0" max="20">
+                        </div>
+                        <div class="input-group">
+                            <label for="depth">Depth</label>
+                            <input type="number" id="depth" name="depth" value="2" min="1" max="5">
+                        </div>
+                    </div>
+
+                    <div class="sections-group">
+                        <h3>Content Filters</h3>
+                        <div class="checkbox-grid">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" name="scrape_title" checked>
+                                <span class="checkmark"></span>
+                                <span class="label-text">Page Title</span>
+                            </label>
+                            <label class="custom-checkbox">
+                                <input type="checkbox" name="scrape_meta" checked>
+                                <span class="checkmark"></span>
+                                <span class="label-text">Meta Description</span>
+                            </label>
+                            <label class="custom-checkbox">
+                                <input type="checkbox" name="scrape_headings" checked>
+                                <span class="checkmark"></span>
+                                <span class="label-text">Headings (H1-H3)</span>
+                            </label>
+                            <label class="custom-checkbox">
+                                <input type="checkbox" name="scrape_paragraphs">
+                                <span class="checkmark"></span>
+                                <span class="label-text">Paragraphs</span>
+                            </label>
+                            <label class="custom-checkbox">
+                                <input type="checkbox" name="scrape_tables">
+                                <span class="checkmark"></span>
+                                <span class="label-text">Tables</span>
+                            </label>
+                            <label class="custom-checkbox">
+                                <input type="checkbox" name="scrape_links">
+                                <span class="checkmark"></span>
+                                <span class="label-text">Links</span>
+                            </label>
+                            <label class="custom-checkbox">
+                                <input type="checkbox" name="scrape_images">
+                                <span class="checkmark"></span>
+                                <span class="label-text">Images</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="startBtn" class="glow-on-hover">
+                        <span class="btn-text">Start Extraction</span>
+                        <div class="loader hidden"></div>
+                    </button>
+                </form>
+            </section>
+
+            <section id="resultsPanel" class="results-panel hidden">
+                <div class="results-header glass-card slide-up-delayed">
+                    <div class="header-content">
+                        <h2>Extraction Results</h2>
+                        <span id="resultCount" class="badge">0 items</span>
+                    </div>
+                    <div class="results-toolbar">
+                        <input id="resultsFilter" type="text" placeholder="Filter by keyword..." />
+                        <select id="resultsSort">
+                            <option value="title">Sort: Title</option>
+                            <option value="headings">Sort: Heading Count</option>
+                            <option value="paragraphs">Sort: Paragraph Count</option>
+                            <option value="url">Sort: URL</option>
+                        </select>
+                        <button id="expandAllBtn" class="secondary-btn">Expand All</button>
+                        <button id="collapseAllBtn" class="secondary-btn">Collapse All</button>
+                        <button id="downloadBtn" class="secondary-btn hidden">
+                            <span>⬇ Download JSON</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="loadingOverlay" class="loading-overlay hidden">
+                    <div class="scrape-status">
+                        <div class="radar-spinner"></div>
+                        <p>Traversing nodes...</p>
+                    </div>
+                </div>
+
+                <div id="resultsContainer" class="results-grid"></div>
+            </section>
+        </main>
+    </div>
+    <script src="/static/js/script.js"></script>
+</body>
+</html>

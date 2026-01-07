@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Web Summarizer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Specific overrides or additions for summarizer */
+        .summary-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-main);
+            white-space: pre-line;
+        }
+        
+        .length-selector {
+            display: inline-flex;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 4px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+        
+        .length-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+        
+        .length-btn:hover {
+            color: var(--primary);
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        .length-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .summary-header {
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .variation-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.5);
+            padding: 6px 12px;
+            border-radius: 20px;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Animation -->
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="logo">
+                <span style="font-size: 2rem;">✨</span>
+                <h1 style="background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Smart Summarizer</h1>
+            </div>
+            <p style="color: var(--text-muted);">Instantly distill web content into clear, concise insights.</p>
+        </header>
+
+        <div class="glass-card" style="max-width: 800px; margin: 0 auto;">
+            <div class="input-group">
+                <input type="url" id="targetUrl" class="search-input" placeholder="Paste article URL here..." required>
+                <button onclick="generateSummary()" class="btn-primary" id="generateBtn">
+                    <span>Summarize</span>
+                    <div class="loading-spinner"></div>
+                </button>
+            </div>
+
+            <div class="options-grid" style="margin-top: 1.5rem; grid-template-columns: auto 1fr; align-items: center; gap: 1rem;">
+                <label style="color: var(--text-muted); font-weight: 500;">Length:</label>
+                <div class="length-selector">
+                    <button class="length-btn" onclick="setLength('short')" data-value="short">Short</button>
+                    <button class="length-btn active" onclick="setLength('medium')" data-value="medium">Medium</button>
+                    <button class="length-btn" onclick="setLength('long')" data-value="long">Detailed</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="resultContainer" class="glass-card" style="max-width: 800px; margin: 2rem auto 0; display: none; animation: slideUp 0.5s ease-out;">
+            <div class="summary-header">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h2 id="articleTitle" style="font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--text-main);"></h2>
+                        <div class="variation-badge">
+                            <span>⚡ AI Generated Insights</span>
+                            <span id="variationId" style="opacity: 0.7;"></span>
+                        </div>
+                    </div>
+                    <div id="statsBadge" style="text-align: right; font-size: 0.85rem; color: var(--text-muted); background: rgba(255,255,255,0.6); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--glass-border);">
+                        <!-- Stats injected here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div id="summaryContent">
+                <div class="section-card" style="background: rgba(255,255,255,0.4); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; border-left: 4px solid var(--primary);">
+                    <h3 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); margin-bottom: 1rem;">Executive Summary</h3>
+                    <p id="execSummary" class="summary-content" style="font-size: 1.15rem; font-weight: 500; color: var(--text-main);"></p>
+                </div>
+                
+                <div class="section-card" style="padding: 0 1rem;">
+                    <h3 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; color: var(--secondary); margin-bottom: 1rem;">Key Highlights</h3>
+                    <ul id="highlightsList" style="list-style: none; padding: 0;">
+                        <!-- Highlights injected here -->
+                    </ul>
+                </div>
+            </div>
+            
+            <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center;">
+                <button onclick="generateSummary()" class="btn-secondary" style="font-size: 0.9rem;">
+                    🔄 Regenerate Variation
+                </button>
+                <a href="/" class="btn-secondary" style="text-decoration: none; font-size: 0.9rem;">
+                    ← Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentLength = 'medium';
+
+        function setLength(length) {
+            currentLength = length;
+            document.querySelectorAll('.length-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.value === length);
+            });
+            // If we already have a result, regenerate with new length
+            const url = document.getElementById('targetUrl').value;
+            if (url && document.getElementById('resultContainer').style.display !== 'none') {
+                generateSummary();
+            }
+        }
+
+        async function generateSummary() {
+            const urlInput = document.getElementById('targetUrl');
+            const btn = document.getElementById('generateBtn');
+            const resultContainer = document.getElementById('resultContainer');
+            
+            if (!urlInput.value) {
+                alert('Please enter a URL');
+                return;
+            }
+
+            // Loading state
+            btn.classList.add('loading');
+            resultContainer.style.opacity = '0.5';
+            
+            try {
+                const response = await fetch('/api/summarize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        url: urlInput.value,
+                        length: currentLength
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    return;
+                }
+
+                // Update UI
+                document.getElementById('articleTitle').textContent = data.title;
+                document.getElementById('variationId').textContent = '#' + data.variation_id.substring(0, 6);
+                
+                // Stats
+                if (data.stats) {
+                    document.getElementById('statsBadge').innerHTML = `
+                        <div><strong>${data.stats.reduction_rate}</strong> reduction</div>
+                        <div>~${data.stats.read_time} read</div>
+                    `;
+                }
+
+                // Executive Summary
+                document.getElementById('execSummary').textContent = data.executive_summary;
+
+                // Highlights
+                const highlightsList = document.getElementById('highlightsList');
+                highlightsList.innerHTML = '';
+                data.highlights.forEach(point => {
+                    const li = document.createElement('li');
+                    li.style.cssText = 'margin-bottom: 1rem; padding-left: 1.5rem; position: relative; color: var(--text-main); font-size: 1.05rem;';
+                    li.innerHTML = `<span style="position: absolute; left: 0; color: var(--secondary);">•</span> ${point}`;
+                    highlightsList.appendChild(li);
+                });
+                
+                resultContainer.style.display = 'block';
+                resultContainer.style.opacity = '1';
+                
+                // Scroll to result
+                resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to generate summary');
+            } finally {
+                btn.classList.remove('loading');
+            }
+        }
+    </script>
+</body>
+</html>
